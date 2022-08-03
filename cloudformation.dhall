@@ -105,12 +105,13 @@ let distro =
               , DefaultCacheBehavior =
                 { AllowedMethods = [ "GET", "HEAD", "OPTIONS" ]
                 , TargetOriginId = originId
-                , ForwardedValues =
-                  { QueryString = "false", Cookies.Forward = "none" }
+                , Compress = True
+                , CachePolicyId = "658327ea-f89d-4fab-a63d-7e88639e58f6"
                 , ViewerProtocolPolicy = "redirect-to-https"
                 }
               , HttpVersion = "http2"
-              , PriceClass = "PriceClass_200"
+              , PriceClass = "PriceClass_100"
+              , IPV6Enabled = True
               , ViewerCertificate =
                 { AcmCertificateArn =
                   [ { mapKey = "Ref", mapValue = certificateLogicalId } ]
