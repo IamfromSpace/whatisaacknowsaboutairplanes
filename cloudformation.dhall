@@ -20,6 +20,12 @@ let cert =
 
 let bucket = { Type = "AWS::S3::Bucket", Properties = {=} }
 
+let JoinItem =
+    --Some type checker Appeasement.  F shold really be much more expressive.
+      < T : Text | F : List { mapKey : Text, mapValue : List Text } >
+
+let JoinData = < Delimiter : Text | Items : List JoinItem >
+
 let bucketPolicy =
       \(bucketLogicalId : Text) ->
       \(originAccessIdentityLogicalId : Text) ->
@@ -32,8 +38,18 @@ let bucketPolicy =
               [ { Action = [ "s3:GetObject" ]
                 , Effect = "Allow"
                 , Resource =
-                  [ { mapKey = "Fn::Sub"
-                    , mapValue = "\${${bucketLogicalId}}/*"
+                  [ { mapKey = "Fn::Join"
+                    , mapValue =
+                      [ JoinData.Delimiter ""
+                      , JoinData.Items
+                          [ JoinItem.F
+                              [ { mapKey = "Fn::GetAtt"
+                                , mapValue = [ bucketLogicalId, "Arn" ]
+                                }
+                              ]
+                          , JoinItem.T "/*"
+                          ]
+                      ]
                     }
                   ]
                 , Principal.CanonicalUser
