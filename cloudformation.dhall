@@ -120,6 +120,27 @@ let distro =
               }
             }
 
+let dnsRecord =
+      \(hostedZoneLogicalId : Text) ->
+      \(distributionLogicalId : Text) ->
+      \(domainName : Text) ->
+        { Type = "AWS::Route53::RecordSet"
+        , Properties =
+          { AliasTarget =
+            { DNSName =
+              [ { mapKey = "Fn::GetAtt"
+                , mapValue = [ distributionLogicalId, "DomainName" ]
+                }
+              ]
+            , HostedZoneId = "Z2FDTNDATAQYW2"
+            }
+          , HostedZoneId =
+            [ { mapKey = "Ref", mapValue = hostedZoneLogicalId } ]
+          , Name = domainName
+          , Type = "A"
+          }
+        }
+
 in  \(domainName : Text) ->
       { AWSTemplateFormatVersion = "2010-09-09"
       , Resources =
@@ -130,5 +151,6 @@ in  \(domainName : Text) ->
         , BucketPolicy = bucketPolicy "Bucket" "OriginAccessIdentity"
         , OriginAccessIdentity = oai domainName
         , Certificate = cert "HostedZone" domainName
+        , DnsRecord = dnsRecord "HostedZone" "Distribution" domainName
         }
       }
