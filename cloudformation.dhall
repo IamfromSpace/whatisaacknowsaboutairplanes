@@ -145,6 +145,8 @@ in  \(domainName : Text) ->
       { AWSTemplateFormatVersion = "2010-09-09"
       , Resources =
         { Distribution =
+            -- Note that by doing this all together, the cert _must_ be in
+            -- us-east-1 to work with Cloudfront
             distro "OriginAccessIdentity" "Certificate" "Bucket" domainName
         , HostedZone = hostedZone domainName
         , Bucket = bucket
